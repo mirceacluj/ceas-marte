@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centrul de Control Marțian - Locații versus Terra</title>
+    <style>
+        body {
+            background-color: #0d0d11 !important;
+            color: #ffffff !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #ffcc00 !important;
+            font-size: 24px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        #my-title {
+            color: #ffaa00 !important;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            background: #16161f !important;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        .locatie {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 14px;
+            margin: 10px 0;
+            border-radius: 8px;
+            background: #1e1e2a !important;
+            border-left: 5px solid var(--border-color, #333) !important;
+        }
+        .nume-marte {
+            font-weight: bold;
+            font-size: 17px;
+            margin-bottom: 2px;
+        }
+        .analogie-terra {
+            font-size: 13px;
+            color: #bbbbbb !important;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+        .timp-box {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            font-size: 15px;
+            border-top: 1px solid #2a2a3a;
+            padding-top: 8px;
+        }
+        .timp-marte { 
+            font-weight: bold; 
+            color: #ffffff !important;
+        }
+        .timp-terra { 
+            color: #cccccc !important; 
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Centrul de Control Interplanetar</h1>
+    <div id="my-title">Se încarcă anul marțian...</div>
+
+    <div class="container" id="panou-ceasuri"></div>
+
+    <script>
+        // Configurația curată a locațiilor - MARTE versus TERRA
+        const LOCATII = [
+            {"nume": "Greenwich Martian (MTC)", "analogie": "Londra Terestră / Meridianul 0", "lungime": 0.0, "decalaj": 0, "culoare": "#00f2fe"},
+            {"nume": "Craterul Iazu (Românesc)", "analogie": "București / Ora de Vară", "lungime": 354.8, "decalaj": 3, "culoare": "#ffcc33"},
+            {"nume": "Craterul Jezero", "analogie": "Delta Perseverance / Bosnia & Deltă antică", "lungime": 77.5, "decalaj": 2, "culoare": "#33cc33"},
+            {"nume": "Valea Marineris", "analogie": "Canionul Ecuatorial / Marele Canion SUA", "lungime": 302.5, "decalaj": 3, "culoare": "#ff6699"},
+            {"nume": "Bazinul Utopia Planitia", "analogie": "Zhurong / Siberia Înghețată", "lungime": 117.5, "decalaj": 7, "culoare": "#00e6e6"},
+            {"nume": "Craterul Hellas Planitia", "analogie": "Adâncul Planetei / Marea Moartă depresiune", "lungime": 70.0, "decalaj": 5.5, "culoare": "#00e6e6"},
+            {"nume": "Craterul Gale", "analogie": "Baza Curiosity / Australia - Sydney", "lungime": 137.4, "decalaj": 10, "culoare": "#ff9933"},
+            {"nume": "Muntele Olympus", "analogie": "Hawaii - Vulcani / Cel mai înalt Vârf din sistem", "lungime": 226.2, "decalaj": -10, "culoare": "#ff4d4d"},
+            {"nume": "Craterul Gusev", "analogie": "Baza Spirit / Lac secat antic", "lungime": 175.4, "decalaj": 11, "culoare": "#cc66ff"},
+            {"nume": "Planum Boreum", "analogie": "Calota Polară Nordică / Groenlanda Marțiană", "lungime": 0.0, "decalaj": 0, "culoare": "#a64dff"},
+            {"nume": "Noctis Labyrinthus", "analogie": "Labirintul Nopții / Marele Canion ramificat", "lungime": 260.0, "decalaj": -6, "culoare": "#ff3399"},
+            {"nume": "Cydonia Mensae", "analogie": "Zona 'Fața de pe Marte' / Podișuri erodate", "lungime": 350.2, "decalaj": 2, "culoare": "#ffcc00"}
+        ];
+
+        function formatTime(h, m, s) {
+            return String(h).padStart(2, '0') + ":" + String(m).padStart(2, '0') + ":" + String(s).padStart(2, '0');
+        }
+
+        function actualizeaza() {
+            const acum = new Date();
+            const millis = acum.getTime();
+            const jd = (millis / 86400000.0) + 2440587.5;
+            
+            const msd_global = (jd - 2405522.0028779) / 1.02749125170 + 44796.0;
+            const my_curent = Math.floor((jd - 2415102.5) / 686.98) + 1;
+            
+            document.getElementById("my-title").innerText = "ANUL MARȚIAN CURENT: MY " + my_curent;
+            
+            const container = document.getElementById("panou-ceasuri");
+            container.innerHTML = ""; 
+
+            const utc_millis = millis + (acum.getTimezoneOffset() * 60000);
+
+            LOCATII.forEach(loc => {
+                const msd_local = msd_global + (loc.lungime / 360.0);
+                const mtc_hours_total = (msd_local % 1) * 24;
+                
+                const h_m = Math.floor(mtc_hours_total);
+                const m_m = Math.floor((mtc_hours_total * 60) % 60);
+                const s_m = Math.floor((mtc_hours_total * 3600) % 60);
+                
+                const timp_terra = new Date(utc_millis + (loc.decalaj * 3600000));
+                const h_t = timp_terra.getHours();
+                const m_t = timp_terra.getMinutes();
+                const s_t = timp_terra.getSeconds();
+
+                const div = document.createElement("div");
+                div.className = "locatie";
+                div.style.setProperty('--border-color', loc.culoare);
+                div.innerHTML = `
+                    <div class="nume-marte" style="color: ${loc.culoare}">${loc.nume}</div>
+                    <div class="analogie-terra">Corespondență Pământ: ${loc.analogie}</div>
+                    <div class="timp-box">
+                        <div class="timp-marte">Ora Marte: <span style="color: ${loc.culoare}">${formatTime(h_m, m_m, s_m)}</span></div>
+                        <div class="timp-terra">Ora Terra: ${formatTime(h_t, m_t, s_t)}</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        setInterval(actualizeaza, 1000);
+        actualizeaza();
+    </script>
+</body>
+</html>
